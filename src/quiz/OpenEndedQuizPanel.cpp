@@ -201,7 +201,7 @@ void OpenEndedQuizPanel::OnSubmit(wxCommandEvent&) {
             "If the answer is correct and polite, give an A. If it is incorrect but polite, give a B or C depending on how close it was to being correct. "
             "If it is rude or impolite, give a D or F depending on how rude it was. "
             "If the answer was left blank, then mark the answer as 'Incorrect', but DO NOT suggest that the user try again or retry the question. "
-            "There is a strict 15-second timer for each question to simulate real-world time pressure in conversations. "
+            "There is a strict 30-second timer for each question to simulate real-world time pressure in conversations. "
             "Spelling or grammatical mistakes may occur because the timer can end before the user fully completes their response. "
             "Do not penalize the user for small spelling or grammatical errors caused by this timer constraint."
         }
