@@ -11,10 +11,11 @@ ProfileSelection::ProfileSelection() : wxFrame(nullptr, wxID_ANY, "Select Your P
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
     profileChoice = new wxChoice(this, ID_SELECT_PROFILE);
     wxButton* newProfileBtn = new wxButton(this, ID_NEW_PROFILE, "+ New Profile");
-
+    wxButton* deleteProfileBtn = new wxButton(this, wxID_ANY, "🗑️ Delete Profile");
     profileTopSizer->Add(new wxStaticText(this, wxID_ANY, "Select Profile:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
     profileTopSizer->Add(profileChoice, 0, wxRIGHT, 10);
     profileTopSizer->Add(newProfileBtn, 0, wxALIGN_CENTER_VERTICAL);
+    profileTopSizer->Add(deleteProfileBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
     profileBox->Add(profileTopSizer, 0, wxALL, 5);
 
     nameCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(200, -1));
@@ -50,6 +51,17 @@ ProfileSelection::ProfileSelection() : wxFrame(nullptr, wxID_ANY, "Select Your P
     saveBtn->Bind(wxEVT_BUTTON, &ProfileSelection::OnSaveProfile, this);
     continueBtn->Bind(wxEVT_BUTTON, &ProfileSelection::OnContinue, this);
     newProfileBtn->Bind(wxEVT_BUTTON, &ProfileSelection::OnNewProfile, this);
+    deleteProfileBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) {
+        int index = profileChoice->GetSelection();
+        if (index == wxNOT_FOUND) return;
+
+        wxMessageDialog confirmDlg(this, "Are you sure you want to delete the profile \"" + profileChoice->GetString(index) + "\"?", "Confirm Delete", wxYES_NO | wxNO_DEFAULT | wxICON_WARNING);
+        if (confirmDlg.ShowModal() == wxID_YES) {
+            profilesData.erase(profilesData.begin() + index);
+            SaveAllProfiles();
+            LoadAllProfiles();
+        }
+    });
     profileChoice->Bind(wxEVT_CHOICE, &ProfileSelection::OnSelectProfile, this);
     SetSizerAndFit(profileBox);
     LoadAllProfiles();
