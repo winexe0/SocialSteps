@@ -137,7 +137,7 @@ void ProfileSelection::SaveAllProfiles() {
 }
 void ProfileSelection::OnContinue(wxCommandEvent& event){
     if (nameCtrl->GetValue().IsEmpty() || ageCtrl->GetValue().IsEmpty() || likesCtrl->GetValue().IsEmpty() || strengthsCtrl->GetValue().IsEmpty() || improveCtrl->GetValue().IsEmpty()) {
-        wxMessageBox("Please answer all the questions in order for us to help you in the best way possible. Thank You!", "One or More fields not complete", wxOK | wxICON_ERROR);
+        wxMessageBox("Please answer all the questions in order for us to help you in the best way possible. Thank You!", "One or More fields Not Complete", wxOK | wxICON_ERROR);
         return;
     }
     if (nameCtrl->GetValue() != profilesData[currentProfileIndex].value("name", "") ||
