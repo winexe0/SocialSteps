@@ -3,6 +3,7 @@
 #include <wx/wx.h>
 #include <wx/notebook.h>
 #include <wx/process.h>
+#include <wx/artprov.h>
 #include "ChatbotPanel.h"
 #include "FAQPanel.h"
 #include "SocialSkillsPanel.h"
@@ -29,6 +30,7 @@ private:
     BasicQuizPanel* basicquizPanel;
     AdvancedQuizPanel* advancedquizPanel;
     OpenEndedQuizPanel* openEndedQuizPanel;
+    wxToolBar* toolbar;
     void OnPageChanged(wxBookCtrlEvent& event);
 };
 class MyApp : public wxApp {

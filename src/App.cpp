@@ -8,6 +8,7 @@
 #elif __WXOSX__
 #else
 #include <piper.h>
+extern wxString name;
 piper_synthesizer *speech = nullptr;
 #endif
 bool MyApp::OnInit() {
@@ -34,6 +35,7 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "SocialSteps", wxDefaultPosition
         advancedquizPanel = new AdvancedQuizPanel(notebook);
         openEndedQuizPanel = new OpenEndedQuizPanel(notebook);
         chatbotPanel = new ChatbotPanel(notebook);
+        toolbar = CreateToolBar(wxTB_FLAT | wxTB_RIGHT | wxTB_TEXT);
         notebook->AddPage(landingPanel, "Welcome");
         notebook->AddPage(chatbotPanel, "💬 Someone To Talk To");
         notebook->AddPage(faqPanel, "❓ Commonly Asked Social Skills Questions");
@@ -42,6 +44,21 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "SocialSteps", wxDefaultPosition
         notebook->AddPage(basicquizPanel, "🧩 Basic Quiz");
         notebook->AddPage(advancedquizPanel, "🧠 Advanced Quiz");
         notebook->AddPage(openEndedQuizPanel, "🗣️ Open-Ended Quiz");
+        wxStaticText* currentProfileLabel = new wxStaticText(toolbar, wxID_ANY, "Current Profile: " + name);
+        toolbar->AddControl(currentProfileLabel);
+        toolbar->AddTool(wxID_ANY, "Sign Out", wxArtProvider::GetBitmap(wxART_QUIT), "Sign Out of your profile");
+        toolbar->Realize();
+        toolbar->Bind(wxEVT_TOOL, [this](wxCommandEvent&) {
+            if (wxMessageBox("Are you sure you want to sign out?", "Confirm Sign Out",
+                     wxYES_NO | wxICON_QUESTION) == wxYES) {
+                // Go back to profile selection / landing page
+                MyFrame* frame = dynamic_cast<MyFrame*>(wxGetTopLevelParent(this));
+                frame->Close();
+                ProfileSelection* profileselection = new ProfileSelection();
+                profileselection->Show();
+                SpeakText("You have signed out. Please select your profile to continue.");
+            }
+        });
         notebook->Bind(wxEVT_BOOKCTRL_PAGE_CHANGED, &MyFrame::OnPageChanged, this);
 }
 void SetBackgroundColourIncludingAllChildren(wxWindow* w, const wxColour& clr)

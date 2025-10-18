@@ -85,7 +85,10 @@ void ProfileSelection::LoadProfile(int index) {
     profileChoice->Fit();
     //systemPrompt.Append(" You are speaking to " + nameCtrl->GetValue() + ", who is " + ageCtrl->GetValue() + " years old. They like to " + likesCtrl->GetValue() + ". Their strengths include " + strengthsCtrl->GetValue() + ". They want to improve on " + improveCtrl->GetValue() + ".");
     continueBtn->SetLabel("Continue as " + nameCtrl->GetValue() + " ➡️");
+    continueBtn->SetToolTip("Continue to SocialSteps as " + nameCtrl->GetValue());
+    continueBtn->Fit();
     continueBtn->Show();
+    Layout();
     SpeakText("Welcome back, " + nameCtrl->GetValue() + "!");
 }
 
