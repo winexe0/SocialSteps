@@ -2,52 +2,108 @@
 #include "App.h"
 #include "../external/json.hpp"
 #include "SpeakText.h"
+#include <wx/statline.h>
 #include <fstream>
+
 using json = nlohmann::json;
 wxString name, age, likes, strengths, improve;
-ProfileSelection::ProfileSelection() : wxFrame(nullptr, wxID_ANY, "Select Your Profile or Create a New One", wxDefaultPosition, wxSize(800, 600)) {
-    wxBoxSizer* profileBox = new wxStaticBoxSizer(wxVERTICAL, this, "👥 User Profiles");
+
+ProfileSelection::ProfileSelection()
+    : wxFrame(nullptr, wxID_ANY, "Welcome to SocialSteps", wxDefaultPosition, wxSize(900, 700))
+{
+    SetBackgroundColour(wxColour(245, 250, 255));
+
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+
+    // 🌟 Title
+    wxStaticText* title = new wxStaticText(this, wxID_ANY, "🌟 Welcome to SocialSteps!");
+    title->SetFont(wxFontInfo(28).Bold());
+    title->SetForegroundColour(wxColour(40, 80, 180));
+    mainSizer->Add(title, 0, wxALIGN_CENTER | wxTOP, 25);
+
+    // Subtitle
+    wxStaticText* subtitle = new wxStaticText(this, wxID_ANY,
+        "Before we start, let's set up your profile so we can personalize your experience.");
+    subtitle->SetFont(wxFontInfo(14));
+    subtitle->SetForegroundColour(wxColour(70, 70, 70));
+    subtitle->Wrap(750);
+    mainSizer->Add(subtitle, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+
+    // 🧍 Profile Box styled like LandingPage
+    wxPanel* card = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
+    card->SetBackgroundColour(wxColour(255, 255, 255));
+
+    wxBoxSizer* cardSizer = new wxBoxSizer(wxVERTICAL);
+
+    wxStaticText* cardTitle = new wxStaticText(card, wxID_ANY, "👥 User Profiles");
+    cardTitle->SetFont(wxFontInfo(16).Bold());
+    cardTitle->SetForegroundColour(wxColour(0, 70, 150));
+    cardSizer->Add(cardTitle, 0, wxLEFT | wxTOP, 10);
+
+    wxStaticLine* line = new wxStaticLine(card);
+    cardSizer->Add(line, 0, wxEXPAND | wxALL, 5);
+
+    // Top (profile selector)
     wxBoxSizer* profileTopSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-    profileChoice = new wxChoice(this, ID_SELECT_PROFILE);
-    wxButton* newProfileBtn = new wxButton(this, ID_NEW_PROFILE, "+ New Profile");
-    wxButton* deleteProfileBtn = new wxButton(this, wxID_ANY, "🗑️ Delete Profile");
-    profileTopSizer->Add(new wxStaticText(this, wxID_ANY, "Select Profile:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    profileChoice = new wxChoice(card, ID_SELECT_PROFILE);
+    wxButton* newProfileBtn = new wxButton(card, ID_NEW_PROFILE, "+ New Profile");
+    wxButton* deleteProfileBtn = new wxButton(card, wxID_ANY, "🗑️ Delete");
+
+    newProfileBtn->SetBackgroundColour(wxColour(220, 235, 255));
+    deleteProfileBtn->SetBackgroundColour(wxColour(255, 230, 230));
+
+    profileTopSizer->Add(new wxStaticText(card, wxID_ANY, "Select Profile:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
     profileTopSizer->Add(profileChoice, 0, wxRIGHT, 10);
-    profileTopSizer->Add(newProfileBtn, 0, wxALIGN_CENTER_VERTICAL);
-    profileTopSizer->Add(deleteProfileBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
-    profileBox->Add(profileTopSizer, 0, wxALL, 5);
+    profileTopSizer->Add(newProfileBtn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    profileTopSizer->Add(deleteProfileBtn, 0, wxALIGN_CENTER_VERTICAL);
+    cardSizer->Add(profileTopSizer, 0, wxALL | wxEXPAND, 5);
 
-    nameCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(200, -1));
-    ageCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(80, -1));
-    likesCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(400, -1));
-    strengthsCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(400, -1));
-    improveCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(400, -1));
+    // Profile fields
+    nameCtrl = new wxTextCtrl(card, wxID_ANY, "", wxDefaultPosition, wxSize(200, -1));
+    ageCtrl = new wxTextCtrl(card, wxID_ANY, "", wxDefaultPosition, wxSize(80, -1));
+    likesCtrl = new wxTextCtrl(card, wxID_ANY, "", wxDefaultPosition, wxSize(400, -1));
+    strengthsCtrl = new wxTextCtrl(card, wxID_ANY, "", wxDefaultPosition, wxSize(400, -1));
+    improveCtrl = new wxTextCtrl(card, wxID_ANY, "", wxDefaultPosition, wxSize(400, -1));
 
-    wxFlexGridSizer* grid = new wxFlexGridSizer(5, 2, 5, 10);
-    grid->Add(new wxStaticText(this, wxID_ANY, "Name:"), 0, wxALIGN_CENTER_VERTICAL);
+    wxFlexGridSizer* grid = new wxFlexGridSizer(5, 2, 10, 15);
+    grid->Add(new wxStaticText(card, wxID_ANY, "Name:"), 0, wxALIGN_CENTER_VERTICAL);
     grid->Add(nameCtrl, 1, wxEXPAND);
 
-    grid->Add(new wxStaticText(this, wxID_ANY, "Age:"), 0, wxALIGN_CENTER_VERTICAL);
+    grid->Add(new wxStaticText(card, wxID_ANY, "Age:"), 0, wxALIGN_CENTER_VERTICAL);
     grid->Add(ageCtrl, 1, wxEXPAND);
 
-    grid->Add(new wxStaticText(this, wxID_ANY, "What do you like to do?"), 0, wxALIGN_CENTER_VERTICAL);
+    grid->Add(new wxStaticText(card, wxID_ANY, "What do you like to do?"), 0, wxALIGN_CENTER_VERTICAL);
     grid->Add(likesCtrl, 1, wxEXPAND);
 
-    grid->Add(new wxStaticText(this, wxID_ANY, "Your strengths:"), 0, wxALIGN_CENTER_VERTICAL);
+    grid->Add(new wxStaticText(card, wxID_ANY, "Your strengths:"), 0, wxALIGN_CENTER_VERTICAL);
     grid->Add(strengthsCtrl, 1, wxEXPAND);
 
-    grid->Add(new wxStaticText(this, wxID_ANY, "Things to improve on:"), 0, wxALIGN_CENTER_VERTICAL);
+    grid->Add(new wxStaticText(card, wxID_ANY, "Things to improve on:"), 0, wxALIGN_CENTER_VERTICAL);
     grid->Add(improveCtrl, 1, wxEXPAND);
 
     grid->AddGrowableCol(1, 1);
-    profileBox->Add(grid, 1, wxALL | wxEXPAND, 10);
-    continueBtn = new wxButton(this, wxID_ANY);
+    cardSizer->Add(grid, 1, wxALL | wxEXPAND, 15);
+
+    // Buttons row
+    wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxButton* saveBtn = new wxButton(card, ID_SAVE_PROFILE, "💾 Save");
+    continueBtn = new wxButton(card, wxID_ANY, "Continue ➡️");
     continueBtn->Hide();
-    wxButton* saveBtn = new wxButton(this, ID_SAVE_PROFILE, "💾 Save Profile");
+
+    saveBtn->SetBackgroundColour(wxColour(220, 245, 220));
+    continueBtn->SetBackgroundColour(wxColour(200, 230, 255));
+
     buttonSizer->Add(saveBtn, 0, wxALL, 5);
     buttonSizer->Add(continueBtn, 0, wxALL, 5);
-    profileBox->Add(buttonSizer, 0, wxALL | wxALIGN_RIGHT, 10);
+    cardSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxRIGHT | wxBOTTOM, 10);
+
+    card->SetSizer(cardSizer);
+    mainSizer->Add(card, 0, wxALL | wxEXPAND, 20);
+
+    SetSizer(mainSizer);
+    Centre();
+
+    // 🔗 Event bindings
     saveBtn->Bind(wxEVT_BUTTON, &ProfileSelection::OnSaveProfile, this);
     continueBtn->Bind(wxEVT_BUTTON, &ProfileSelection::OnContinue, this);
     newProfileBtn->Bind(wxEVT_BUTTON, &ProfileSelection::OnNewProfile, this);
@@ -55,7 +111,9 @@ ProfileSelection::ProfileSelection() : wxFrame(nullptr, wxID_ANY, "Select Your P
         int index = profileChoice->GetSelection();
         if (index == wxNOT_FOUND) return;
 
-        wxMessageDialog confirmDlg(this, "Are you sure you want to delete the profile \"" + profileChoice->GetString(index) + "\"?", "Confirm Delete", wxYES_NO | wxNO_DEFAULT | wxICON_WARNING);
+        wxMessageDialog confirmDlg(this,
+            "Are you sure you want to delete the profile \"" + profileChoice->GetString(index) + "\"?",
+            "Confirm Delete", wxYES_NO | wxNO_DEFAULT | wxICON_WARNING);
         if (confirmDlg.ShowModal() == wxID_YES) {
             profilesData.erase(profilesData.begin() + index);
             SaveAllProfiles();
@@ -63,10 +121,14 @@ ProfileSelection::ProfileSelection() : wxFrame(nullptr, wxID_ANY, "Select Your P
         }
     });
     profileChoice->Bind(wxEVT_CHOICE, &ProfileSelection::OnSelectProfile, this);
-    SetSizerAndFit(profileBox);
+
     LoadAllProfiles();
-    SpeakText("Welcome to SocialSteps. Please select your profile or create a new one if you are using SocialSteps for the first time.");
+
+    SpeakText("Welcome to SocialSteps. Please select your profile or create a new one to get started.");
 }
+
+// ✅ The rest of your logic remains the same below
+
 void ProfileSelection::LoadAllProfiles() {
     std::ifstream f("profiles.json");
     if (f.is_open()) {
@@ -94,13 +156,12 @@ void ProfileSelection::LoadProfile(int index) {
     likesCtrl->SetValue(p.value("likes", ""));
     strengthsCtrl->SetValue(p.value("strengths", ""));
     improveCtrl->SetValue(p.value("improve", ""));
-    profileChoice->Fit();
-    //systemPrompt.Append(" You are speaking to " + nameCtrl->GetValue() + ", who is " + ageCtrl->GetValue() + " years old. They like to " + likesCtrl->GetValue() + ". Their strengths include " + strengthsCtrl->GetValue() + ". They want to improve on " + improveCtrl->GetValue() + ".");
+
     continueBtn->SetLabel("Continue as " + nameCtrl->GetValue() + " ➡️");
     continueBtn->SetToolTip("Continue to SocialSteps as " + nameCtrl->GetValue());
-    continueBtn->Fit();
     continueBtn->Show();
     Layout();
+
     SpeakText("Welcome back, " + nameCtrl->GetValue() + "!");
 }
 
@@ -150,11 +211,15 @@ void ProfileSelection::SaveAllProfiles() {
     std::ofstream f("profiles.json");
     f << profilesData.dump(4);
 }
-void ProfileSelection::OnContinue(wxCommandEvent& event){
-    if (nameCtrl->GetValue().IsEmpty() || ageCtrl->GetValue().IsEmpty() || likesCtrl->GetValue().IsEmpty() || strengthsCtrl->GetValue().IsEmpty() || improveCtrl->GetValue().IsEmpty()) {
-        wxMessageBox("Please answer all the questions in order for us to help you in the best way possible. Thank You!", "One or More fields Not Complete", wxOK | wxICON_ERROR);
+
+void ProfileSelection::OnContinue(wxCommandEvent& event) {
+    if (nameCtrl->GetValue().IsEmpty() || ageCtrl->GetValue().IsEmpty() ||
+        likesCtrl->GetValue().IsEmpty() || strengthsCtrl->GetValue().IsEmpty() ||
+        improveCtrl->GetValue().IsEmpty()) {
+        wxMessageBox("Please complete all fields before continuing.", "Missing Information", wxOK | wxICON_WARNING);
         return;
     }
+
     if (nameCtrl->GetValue() != profilesData[currentProfileIndex].value("name", "") ||
         ageCtrl->GetValue() != profilesData[currentProfileIndex].value("age", "") ||
         likesCtrl->GetValue() != profilesData[currentProfileIndex].value("likes", "") ||
@@ -162,13 +227,14 @@ void ProfileSelection::OnContinue(wxCommandEvent& event){
         improveCtrl->GetValue() != profilesData[currentProfileIndex].value("improve", "")) {
         OnSaveProfile(event);
     }
+
     name = nameCtrl->GetValue();
     age = ageCtrl->GetValue();
     likes = likesCtrl->GetValue();
     strengths = strengthsCtrl->GetValue();
     improve = improveCtrl->GetValue();
-    ProfileSelection* profileselection = dynamic_cast<ProfileSelection*>(wxGetTopLevelParent(this));
-    profileselection->Close();
+
+    Close();
     MyFrame* frame = new MyFrame();
     frame->Show(true);
     frame->SetMinSize(wxSize(1200, 768));
